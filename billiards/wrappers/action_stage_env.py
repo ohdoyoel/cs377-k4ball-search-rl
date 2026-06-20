@@ -1,4 +1,4 @@
-"""Action-stage curriculum wrapper.
+r"""Action-stage curriculum wrapper.
 
 Inner env exposes a 5D continuous action $(\sin\theta, \cos\theta, p, a, b)$
 (requires the inner env to be constructed with ``angle_sincos=True``).

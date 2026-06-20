@@ -59,12 +59,10 @@ experiments/                Training, evaluation, analysis drivers
   build_v_sa_rm.py          Train V_rm from 10⁷ random offline shots  (§3.2)
   run_inning_sacrm.py       SAC + reward-model bonus (main 3.2 run)    (§3.2)
   run_inning_sacrm_sa.py    SAC + state-action RM bonus               (§3.2)
+  search_multiseed_h2.py    Greedy depth-2 inference-time lookahead   (§5)
   eval_policy.py            Unified canonical + random evaluation
   summarize_domain_knowledge.py    Domain-knowledge ablation tables   (§4)
   configs.py                Shared sweep grids (seeds, alpha)
-
-exp_4_lookahead/
-  search_multiseed_h2.py    Greedy depth-2 lookahead search           (§5)
 
 tests/                      Pytest suite for the simulator and envs
 docs/                       Paper, slides, and engineering write-ups
@@ -85,7 +83,7 @@ simulator and physics models.
 | §4.1 Aim constraint | `inning_env.py` (`_apply_aim_constraint`, `constrain_aim=True`) |
 | §4.2 Extra geometric features | `inning_env.py` (`_obs`, `extra_features=True`) |
 | §4.3 Reward shaping | `inning_env.py` (gentle / near-miss / foul-penalty flags) |
-| §5 Inference-time lookahead search | `exp_4_lookahead/search_multiseed_h2.py` |
+| §5 Inference-time lookahead search | `experiments/search_multiseed_h2.py` |
 
 ## Setup
 
@@ -157,7 +155,7 @@ python -m experiments.summarize_domain_knowledge
 
 ```bash
 # Greedy depth-2 lookahead over a trained 3-seed ensemble
-python -m exp_4_lookahead.search_multiseed_h2 \
+python -m experiments.search_multiseed_h2 \
     --policies seed0/policy.zip seed1/policy.zip seed2/policy.zip \
     --k1_per_policy 50 --n_episodes 10 --out_dir runs/lookahead
 ```

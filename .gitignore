@@ -32,7 +32,6 @@ runs/
 **/runs/
 experiments/runs*/
 experiments/rm_data*/
-exp_*/runs*/
 **/tb_logs/
 **/tensorboard/
 
