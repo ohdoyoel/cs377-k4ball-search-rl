@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Training / search outputs (regeneratable; never commit)
+runs/
+**/runs/
+*.zip
+*.parquet
+*.npz
+*.pt
+*.ckpt
+*.log
+*.pid
+config.json
+summary.json
+eval_summary.json
+training_curve.csv
+rm_normalization.json
+
+# Allow the docs PDFs (report + slides) despite *.zip/etc rules above
+!docs/*.pdf
