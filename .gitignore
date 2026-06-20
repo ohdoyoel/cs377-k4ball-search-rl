@@ -23,14 +23,29 @@ Thumbs.db
 .idea/
 *.swp
 
-# Training / search outputs (regeneratable; never commit)
+# ---------------------------------------------------------------------------
+# Training / search outputs — regeneratable, never commit
+# ---------------------------------------------------------------------------
+
+# Run/output directories produced by the experiment scripts (default out_dirs)
 runs/
 **/runs/
+experiments/runs*/
+experiments/rm_data*/
+exp_*/runs*/
+**/tb_logs/
+**/tensorboard/
+
+# Model checkpoints & datasets (policy.zip, *_2M.zip, vsa_rm.pt, vsa_dataset.npz, ...)
 *.zip
-*.parquet
-*.npz
 *.pt
+*.pth
 *.ckpt
+*.npz
+*.npy
+*.parquet
+
+# Per-run metadata & logs
 *.log
 *.pid
 config.json
@@ -38,6 +53,7 @@ summary.json
 eval_summary.json
 training_curve.csv
 rm_normalization.json
+events.out.tfevents.*
 
-# Allow the docs PDFs (report + slides) despite *.zip/etc rules above
+# Re-include the report/slide PDFs in docs/ (not matched above, kept for safety)
 !docs/*.pdf

@@ -98,31 +98,78 @@ pip install -e .
 
 ## Quickstart
 
+Every paper section maps to a runnable command below. Each script writes its run artifacts
+(checkpoints, parquet rollouts, CSV curves) into a local output directory that is git-ignored;
+pass `--out_dir` to choose where. Run any script with `--help` for its full flag set (all paper
+knobs are exposed — shaping terms, aim-window width, RM weight, search budget, etc.).
+
+### §2 — Algorithms & training paradigms
+
 ```bash
-# §2 Plain sparse task — SAC baseline (random-start + continue-on-miss)
+# §2.1 Plain sparse task — SAC / PPO / TD3 (random-start + continue-on-miss)
 python -m experiments.run_inning_sac --algo sac --total_steps 400000 --seed 0 \
     --random_start --continue_on_miss
+python -m experiments.run_inning_sac --algo ppo --total_steps 400000 --seed 0 \
+    --random_start --continue_on_miss
 
-# §4 Domain knowledge — aim constraint + extra geometric features (the 6.46-pt run)
+# §2.1/§2.2 Algorithm × seed sweep, and the four start × miss-handling paradigms
+python -m experiments.run_inning_matrix --total_steps 400000
+python -m experiments.run_inning_random --seed 0 --train_env random --eval_envs canonical,random
+```
+
+### §3 — Baseline and two structure-free attempts
+
+```bash
+# §3 Baseline: plain SAC fixed at 1M steps (random-start + continue-on-miss)
+python -m experiments.run_inning_sac --algo sac --total_steps 1000000 --seed 0 \
+    --random_start --continue_on_miss
+
+# §3.1 Staged action curriculum (failed): release aim -> aim+power -> full 4-D action
+python -m experiments.run_inning_action_curriculum --seed 0 \
+    --steps_s1 100000 --steps_s2 100000 --steps_s3 100000
+
+# §3.1 Start-state curriculum control (anneals the starting layout difficulty)
+python -m experiments.run_inning_curriculum --seed 0 --total_steps 1000000 \
+    --d_start 0.0 --d_end 1.0
+
+# §3.2 Learned reward-model (RM) guidance — first build V_rm, then train SAC with the bonus
+python -m experiments.build_v_sa_rm --n_states 5000 --n_actions 100 --out_dir runs/rm
+python -m experiments.run_inning_sacrm    --seed 0 --rm_path runs/rm/vsa_rm.pt --lam 10.0
+python -m experiments.run_inning_sacrm_sa --seed 0 --rm_path runs/rm/vsa_rm.pt --lam 1.0
+```
+
+### §4 — Domain knowledge
+
+```bash
+# §4.1+§4.2 Aim constraint + extra geometric features (the 0.49 -> 6.46-pt jump)
 python -m experiments.run_inning_sac --algo sac --total_steps 1000000 --seed 0 \
     --random_start --continue_on_miss --constrain_aim --extra_features
 
-# §3.2 Learned reward-model bonus — first build V_rm, then train with it
-python -m experiments.build_v_sa_rm --n_states 5000 --n_actions 100 --out_dir runs/rm
-python -m experiments.run_inning_sacrm --seed 0 --rm_path runs/rm/<checkpoint>.pt
+# §4.3 Reward shaping on the constraint+extra base (foul penalty is the one that matters)
+python -m experiments.run_inning_sac --algo sac --total_steps 1000000 --seed 0 \
+    --random_start --continue_on_miss --constrain_aim --extra_features --foul_penalty 1.0
 
-# §5 Inference-time depth-2 lookahead over a trained 3-seed ensemble
+# Print the domain-knowledge ablation tables
+python -m experiments.summarize_domain_knowledge
+```
+
+### §5 — Inference-time lookahead search
+
+```bash
+# Greedy depth-2 lookahead over a trained 3-seed ensemble
 python -m exp_4_lookahead.search_multiseed_h2 \
     --policies seed0/policy.zip seed1/policy.zip seed2/policy.zip \
     --k1_per_policy 50 --n_episodes 10 --out_dir runs/lookahead
-
-# Tests
-pytest
 ```
 
-Run any script with `--help` for its full flag set (every flag in the paper is exposed —
-shaping terms, aim-window width, search budget, etc.). Training and search write run artifacts
-(checkpoints, parquet rollouts, CSV curves) into local output directories that are git-ignored.
+### Evaluation & tests
+
+```bash
+# Unified canonical + random-start evaluation (point at a run dir; reads its config.json)
+python -m experiments.eval_policy --run_dir runs/.../sac_s0
+
+pytest
+```
 
 ## Environment at a glance
 
